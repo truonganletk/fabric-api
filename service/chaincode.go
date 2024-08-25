@@ -4,8 +4,10 @@ import (
 	"crypto/x509"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
+	"example.com/m/model"
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
 	"google.golang.org/grpc"
@@ -143,16 +145,17 @@ func (c *ChaincodeService) GetAllAssets() ([]byte, error) {
 }
 
 // // Submit a transaction synchronously, blocking until it has been committed to the ledger.
-// func createAsset(contract *client.Contract) {
-// 	fmt.Printf("\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments \n")
+func (c *ChaincodeService) CreateAsset(asset model.Asset) error {
+	fmt.Printf("\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments \n")
 
-// 	_, err := contract.SubmitTransaction("CreateAsset", assetId, "yellow", "5", "Tom", "1300")
-// 	if err != nil {
-// 		panic(fmt.Errorf("failed to submit transaction: %w", err))
-// 	}
+	// _, err := c.contract.SubmitTransaction("CreateAsset", assetId, "yellow", "5", "Tom", "1300")
+	_, err := c.contract.SubmitTransaction("CreateAsset", asset.ID, asset.Color, strconv.Itoa(asset.Size), asset.Owner, strconv.Itoa(asset.AppraisedValue))
+	if err != nil {
+		return fmt.Errorf("failed to submit transaction: %w", err)
+	}
 
-// 	fmt.Printf("*** Transaction committed successfully\n")
-// }
+	return nil
+}
 
 // Evaluate a transaction by assetID to query ledger state.
 func (c *ChaincodeService) ReadAssetByID(assetId string) ([]byte, error) {

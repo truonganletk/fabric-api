@@ -251,6 +251,7 @@ func main() {
 
 	router.GET("/assets", controllers.GetAllAssets)
 	router.GET("/assets/:assetID", controllers.GetAssetByID)
+	router.POST("/assets", controllers.CreateAsset)
 
 	// Start the Gin server
 	router.Run(":8080")
