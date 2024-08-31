@@ -249,9 +249,19 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("/assets", controllers.GetAllAssets)
+	// Serve static files
+	router.Static("/static", "./static")
+
+	// Serve the main index file at the root
+	router.GET("/", func(c *gin.Context) {
+		c.File("./static/index.html")
+	})
+
+	router.POST("/assets", controllers.GetAllAssets)
 	router.GET("/assets/:assetID", controllers.GetAssetByID)
-	router.POST("/assets", controllers.CreateAsset)
+	router.POST("/erc20/getBalance", controllers.GetBalance)
+	router.POST("/erc20/transfer", controllers.Transfer)
+	// router.POST("/assets", controllers.CreateAsset)
 
 	// Start the Gin server
 	router.Run(":8080")

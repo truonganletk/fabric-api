@@ -19,7 +19,7 @@ func GetAllAssets(c *gin.Context) {
 		return
 	}
 
-	chaincode, err := service.NewChaincodeService(certificatePEM, privateKeyPEM)
+	chaincode, err := service.NewChaincodeService(certificatePEM, privateKeyPEM, nil, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to create chaincode service: %s", err)})
 		return
@@ -44,7 +44,7 @@ func GetAssetByID(c *gin.Context) {
 	}
 
 	start := time.Now()
-	chaincode, err := service.NewChaincodeService(certificatePEM, privateKeyPEM)
+	chaincode, err := service.NewChaincodeService(certificatePEM, privateKeyPEM, nil, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to create chaincode service: %s", err)})
 		return
@@ -70,7 +70,7 @@ func CreateAsset(c *gin.Context) {
 	}
 
 	start := time.Now()
-	chaincode, err := service.NewChaincodeService(certificatePEM, privateKeyPEM)
+	chaincode, err := service.NewChaincodeService(certificatePEM, privateKeyPEM, nil, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to create chaincode service: %s", err)})
 		return

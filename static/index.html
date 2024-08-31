@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <form id="upload-form" enctype="multipart/form-data">
+        <div>
+            <label for="cert">Cert:</label>
+            <input type="file" id="cert" name="cert" required>
+        </div>
+        <div>
+            <label for="key">Key:</label>
+            <input type="file" id="key" name="key" required>
+        </div>
+        <div>
+            <button type="submit">Get Balance</button>
+        </div>
+    </form>
+
+    <h2>Balance</h2>
+    <div id="data-container">
+    </div>
+
+    <script src="./static/scripts.js"></script>
+</body>
+</html>

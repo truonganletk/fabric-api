@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"example.com/m/model"
@@ -21,6 +22,7 @@ type ChaincodeService struct {
 	contract *client.Contract
 }
 
+// org1
 const (
 	mspID        = "Org1MSP"
 	cryptoPath   = "/Users/anle/Documents/Project/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com"
@@ -28,6 +30,15 @@ const (
 	peerEndpoint = "dns:///localhost:7051"
 	gatewayPeer  = "peer0.org1.example.com"
 )
+
+// org2
+// const (
+// 	mspID        = "Org2MSP"
+// 	cryptoPath   = "/Users/anle/Documents/Project/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com"
+// 	tlsCertPath  = cryptoPath + "/peers/peer0.org2.example.com/tls/ca.crt"
+// 	peerEndpoint = "dns:///localhost:9051"
+// 	gatewayPeer  = "peer0.org2.example.com"
+// )
 
 // newGrpcConnection creates a gRPC connection to the Gateway server.
 func newGrpcConnection() *grpc.ClientConn {
@@ -83,7 +94,7 @@ func newSignFromPEM(privateKeyPEM []byte) identity.Sign {
 	return sign
 }
 
-func NewChaincodeService(cert []byte, privateKey []byte) (*ChaincodeService, error) {
+func NewChaincodeService(cert []byte, privateKey []byte, ccname, cname *string) (*ChaincodeService, error) {
 	clientConnection := newGrpcConnection()
 	// defer clientConnection.Close()
 
@@ -106,14 +117,18 @@ func NewChaincodeService(cert []byte, privateKey []byte) (*ChaincodeService, err
 
 	// Use environment variables for chaincode and channel names
 	chaincodeName := "basic"
-	if ccname := os.Getenv("CHAINCODE_NAME"); ccname != "" {
-		chaincodeName = ccname
+	if ccname != nil && *ccname != "" {
+		chaincodeName = *ccname
 	}
 
+	fmt.Printf("Using chaincode: %s\n", chaincodeName)
+
 	channelName := "mychannel"
-	if cname := os.Getenv("CHANNEL_NAME"); cname != "" {
-		channelName = cname
+	if cname != nil && *cname != "" {
+		channelName = *cname
 	}
+
+	fmt.Printf("Using channel: %s\n", channelName)
 
 	network := gw.GetNetwork(channelName)
 	contract := network.GetContract(chaincodeName)
@@ -167,6 +182,33 @@ func (c *ChaincodeService) ReadAssetByID(assetId string) ([]byte, error) {
 	}
 
 	return evaluateResult, nil
+}
+
+// get balance erc20
+func (c *ChaincodeService) GetBalance() ([]byte, error) {
+	fmt.Printf("\n--> Evaluate Transaction: GetBalance, function returns asset balance\n")
+
+	evaluateResult, err := c.contract.EvaluateTransaction("ClientAccountBalance", "")
+	if err != nil {
+		return nil, fmt.Errorf("failed to evaluate transaction: %w", err)
+	}
+
+	return evaluateResult, nil
+}
+
+// transfer erc20
+func (c *ChaincodeService) Transfer(recipientCN string, amount string) error {
+	fmt.Printf("\n--> Submit Transaction: Transfer token erc20\n")
+
+	recipient := fmt.Sprintf("x509::CN=%s,OU=client,O=Hyperledger,ST=North Carolina,C=US::CN=ca.org1.example.com,O=org1.example.com,L=Durham,ST=North Carolina,C=US", recipientCN)
+	recipient = strings.TrimSpace(recipient)
+
+	_, err := c.contract.SubmitTransaction("Transfer", recipient, amount)
+	if err != nil {
+		return fmt.Errorf("failed to submit transaction: %w", err)
+	}
+
+	return nil
 }
 
 // // Submit transaction asynchronously, blocking until the transaction has been sent to the orderer, and allowing
